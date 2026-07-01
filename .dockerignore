@@ -1,0 +1,9 @@
+.env
+.claude
+.git
+.gitignore
+*.rest
+Dockerfile
+.dockerignore
+node_modules
+test
