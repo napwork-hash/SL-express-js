@@ -18,6 +18,39 @@ const getProducts = async (req, res) => {
     }
 }
 
+const getProductById = async (req, res) => {
+    try {
+        const { id } = req.params;
+        const findId = await db.product.findUnique({
+            where: { id }
+        })
+
+        if (!findId) {
+            console.info("[Produk tidak ditemukan]")
+            return res.status(404).json({
+                status: "error",
+                message: "Produk tidak ditemukan",
+            });
+        }
+
+        const product = await db.product.findUnique({
+            where: { id }
+        });
+
+        res.status(200).json({
+            status: "success",
+            message: "Berhasil mendapatkan data produk",
+            data: product
+        });
+    } catch (err) {
+        console.error("[Gagal mendapatkan data produk]", err);
+        res.status(500).json({
+            status: "error",
+            message: err.message,
+        });
+    }
+}
+
 const createProduct = async (req, res) => {
     try {
         const { name, price, description } = req.body;
@@ -109,5 +142,6 @@ export {
     getProducts,
     createProduct,
     updateProduct,
-    deleteProduct
+    deleteProduct,
+    getProductById
 }

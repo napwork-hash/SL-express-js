@@ -19,6 +19,7 @@ vi.mock("uuid", () => ({
 import db from "../../database/index.js";
 import {
     getProducts,
+    getProductById,
     createProduct,
     updateProduct,
     deleteProduct,
@@ -62,6 +63,55 @@ describe("getProducts", () => {
         expect(res.json).toHaveBeenCalledWith({
             status: "error",
             message: "db error",
+        });
+    });
+});
+
+describe("getProductById", () => {
+    it("mengembalikan 200 beserta data produk saat ditemukan", async () => {
+        const req = { params: { id: "product-1" } };
+        const product = { id: "product-1", name: "Kopi" };
+        db.product.findUnique.mockResolvedValue(product);
+        const res = mockRes();
+
+        await getProductById(req, res);
+
+        expect(db.product.findUnique).toHaveBeenCalledWith({
+            where: { id: "product-1" },
+        });
+        expect(res.status).toHaveBeenCalledWith(200);
+        expect(res.json).toHaveBeenCalledWith({
+            status: "success",
+            message: "Berhasil mendapatkan data produk",
+            data: product,
+        });
+    });
+
+    it("mengembalikan 404 saat produk tidak ditemukan", async () => {
+        const req = { params: { id: "product-tidak-ada" } };
+        db.product.findUnique.mockResolvedValue(null);
+        const res = mockRes();
+
+        await getProductById(req, res);
+
+        expect(res.status).toHaveBeenCalledWith(404);
+        expect(res.json).toHaveBeenCalledWith({
+            status: "error",
+            message: "Produk tidak ditemukan",
+        });
+    });
+
+    it("mengembalikan 500 saat pemanggilan database gagal", async () => {
+        const req = { params: { id: "product-1" } };
+        db.product.findUnique.mockRejectedValue(new Error("find failed"));
+        const res = mockRes();
+
+        await getProductById(req, res);
+
+        expect(res.status).toHaveBeenCalledWith(500);
+        expect(res.json).toHaveBeenCalledWith({
+            status: "error",
+            message: "find failed",
         });
     });
 });
