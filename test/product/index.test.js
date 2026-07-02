@@ -41,29 +41,46 @@ describe("getProducts", () => {
         const products = [{ id: "product-1", name: "Kopi" }];
         db.product.findMany.mockResolvedValue(products);
         const res = mockRes();
+        const next = vi.fn();
 
-        await getProducts({}, res);
+        await getProducts({}, res, next);
+        await vi.waitFor(() => expect(res.json).toHaveBeenCalled());
 
-        expect(db.product.findMany).toHaveBeenCalled();
         expect(res.status).toHaveBeenCalledWith(200);
         expect(res.json).toHaveBeenCalledWith({
             status: "success",
             message: "Berhasil mendapatkan semua data produk",
             data: products,
         });
+        expect(next).not.toHaveBeenCalled();
     });
 
-    it("mengembalikan 500 saat pemanggilan database gagal", async () => {
-        db.product.findMany.mockRejectedValue(new Error("db error"));
+    it("mengembalikan 200 beserta pesan 'Belum ada data' tanpa field data saat produk kosong", async () => {
+        db.product.findMany.mockResolvedValue([]);
         const res = mockRes();
+        const next = vi.fn();
 
-        await getProducts({}, res);
+        await getProducts({}, res, next);
+        await vi.waitFor(() => expect(res.json).toHaveBeenCalled());
 
-        expect(res.status).toHaveBeenCalledWith(500);
+        expect(res.status).toHaveBeenCalledWith(200);
         expect(res.json).toHaveBeenCalledWith({
-            status: "error",
-            message: "db error",
+            status: "success",
+            message: "Belum ada data",
         });
+    });
+
+    it("meneruskan error ke next saat pemanggilan database gagal", async () => {
+        const error = new Error("db error");
+        db.product.findMany.mockRejectedValue(error);
+        const res = mockRes();
+        const next = vi.fn();
+
+        await getProducts({}, res, next);
+        await vi.waitFor(() => expect(next).toHaveBeenCalled());
+
+        expect(next).toHaveBeenCalledWith(error);
+        expect(res.status).not.toHaveBeenCalled();
     });
 });
 
@@ -101,18 +118,13 @@ describe("getProductById", () => {
         });
     });
 
-    it("mengembalikan 500 saat pemanggilan database gagal", async () => {
+    it("melempar error saat pemanggilan database gagal", async () => {
         const req = { params: { id: "product-1" } };
         db.product.findUnique.mockRejectedValue(new Error("find failed"));
         const res = mockRes();
 
-        await getProductById(req, res);
-
-        expect(res.status).toHaveBeenCalledWith(500);
-        expect(res.json).toHaveBeenCalledWith({
-            status: "error",
-            message: "find failed",
-        });
+        await expect(getProductById(req, res)).rejects.toThrow("find failed");
+        expect(res.status).not.toHaveBeenCalled();
     });
 });
 
@@ -148,18 +160,13 @@ describe("createProduct", () => {
         });
     });
 
-    it("mengembalikan 500 saat pemanggilan database gagal", async () => {
+    it("melempar error saat pemanggilan database gagal", async () => {
         const req = { body: { name: "Kopi", price: "15000", description: "x" } };
         db.product.create.mockRejectedValue(new Error("create failed"));
         const res = mockRes();
 
-        await createProduct(req, res);
-
-        expect(res.status).toHaveBeenCalledWith(500);
-        expect(res.json).toHaveBeenCalledWith({
-            status: "error",
-            message: "create failed",
-        });
+        await expect(createProduct(req, res)).rejects.toThrow("create failed");
+        expect(res.status).not.toHaveBeenCalled();
     });
 });
 
@@ -228,19 +235,14 @@ describe("updateProduct", () => {
         });
     });
 
-    it("mengembalikan 500 saat pemanggilan database gagal", async () => {
+    it("melempar error saat pemanggilan database gagal", async () => {
         const req = { params: { id: "product-1" }, body: {} };
         db.product.findUnique.mockResolvedValue({ id: "product-1" });
         db.product.update.mockRejectedValue(new Error("update failed"));
         const res = mockRes();
 
-        await updateProduct(req, res);
-
-        expect(res.status).toHaveBeenCalledWith(500);
-        expect(res.json).toHaveBeenCalledWith({
-            status: "error",
-            message: "update failed",
-        });
+        await expect(updateProduct(req, res)).rejects.toThrow("update failed");
+        expect(res.status).not.toHaveBeenCalled();
     });
 });
 
@@ -262,17 +264,12 @@ describe("deleteProduct", () => {
         });
     });
 
-    it("mengembalikan 500 saat pemanggilan database gagal", async () => {
+    it("melempar error saat pemanggilan database gagal", async () => {
         const req = { params: { id: "product-1" } };
         db.product.delete.mockRejectedValue(new Error("delete failed"));
         const res = mockRes();
 
-        await deleteProduct(req, res);
-
-        expect(res.status).toHaveBeenCalledWith(500);
-        expect(res.json).toHaveBeenCalledWith({
-            status: "error",
-            message: "delete failed",
-        });
+        await expect(deleteProduct(req, res)).rejects.toThrow("delete failed");
+        expect(res.status).not.toHaveBeenCalled();
     });
 });
