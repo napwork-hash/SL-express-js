@@ -1,5 +1,16 @@
-import { PrismaClient } from '@prisma/client';
-const prisma = new PrismaClient();
+import "dotenv/config";
+import { PrismaClient } from "@prisma/client";
+import { PrismaMariaDb } from "@prisma/adapter-mariadb";
+
+const adapter = new PrismaMariaDb({
+  host: process.env.DB_HOST || "localhost",
+  port: Number(process.env.DB_PORT) || 3306,
+  user: process.env.DB_USER || "root",
+  password: process.env.DB_PASSWORD || "",
+  database: process.env.DB_NAME || "database",
+});
+
+const prisma = new PrismaClient({ adapter });
 
 async function main() {
   console.log('Memulai seeding data produk...');
@@ -7,7 +18,7 @@ async function main() {
   await prisma.product.deleteMany();
 
   const products = [
-    {
+   {
       name: 'Kaos Polos Hitam',
       price: 50000,
       description: 'Kaos polos katun combed 30s nyaman dipakai.',
@@ -60,9 +71,7 @@ async function main() {
   ];
 
   for (const product of products) {
-    const createdProduct = await prisma.product.create({
-      data: product,
-    });
+    const createdProduct = await prisma.product.create({ data: product });
     console.log(`Berhasil membuat produk: ${createdProduct.name} (ID: ${createdProduct.id})`);
   }
 

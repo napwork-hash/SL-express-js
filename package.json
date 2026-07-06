@@ -8,12 +8,15 @@
     "newman": "newman run ./test.postman_collection.json -e ./test.postman_environment.json",
     "test": "start-server-and-test start http://localhost:3000 newman",
     "dev": "nodemon index.js",
-    "vercel-build": "prisma generate"
+    "vercel-build": "prisma generate",
+    "seed": "prisma db seed"
   },
-  "prisma": {
-    "seed": "node database/prisma/seeder/product.js"
-  },
-  "keywords": ["Express", "Postman", "CI/CD", "API"],
+  "keywords": [
+    "Express",
+    "Postman",
+    "CI/CD",
+    "API"
+  ],
   "author": "",
   "license": "ISC",
   "type": "module",
