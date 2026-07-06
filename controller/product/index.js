@@ -1,6 +1,7 @@
 import db from '../../database/index.js'
 import { v4 as uuidv4 } from 'uuid';
 import { asyncHandler } from '../../middleware/errorHandler.js';
+import { sortProduct, searchProduct } from '../../utility/product.js';
 
 const getProducts = asyncHandler(async (req, res) => {
     const page = Number(req.query.page) || 1;
@@ -8,15 +9,17 @@ const getProducts = asyncHandler(async (req, res) => {
     const maxLimit = 100;
     const skip = (page - 1) * limit;
 
+    const orderBy = sortProduct(req.query?.sortBy, req.query?.orderBy);
+    const search = searchProduct(req.query?.search);
+
     const [product, totalItems] = await Promise.all([
         db.product.findMany({
             skip,
             take: Math.min(limit, maxLimit),
-            orderBy: {
-                name: "asc"
-            }
+            orderBy: orderBy,
+            where: search
         }),
-        db.product.count()
+        db.product.count({where: search})
     ]);
 
     if (product.length <= 0) {

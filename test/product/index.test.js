@@ -8,6 +8,7 @@ vi.mock("../../database/index.js", () => ({
             create: vi.fn(),
             update: vi.fn(),
             delete: vi.fn(),
+            count: vi.fn(),
         },
     },
 }));
@@ -40,6 +41,7 @@ describe("getProducts", () => {
     it("mengembalikan 200 beserta daftar produk saat berhasil", async () => {
         const products = [{ id: "product-1", name: "Kopi" }];
         db.product.findMany.mockResolvedValue(products);
+        db.product.count.mockResolvedValue(1);
         const res = mockRes();
         const next = vi.fn();
 
@@ -51,12 +53,20 @@ describe("getProducts", () => {
             status: "success",
             message: "Berhasil mendapatkan semua data produk",
             data: products,
+            pagination: {
+                page: 1,
+                limit: 10,
+                total_items: 1,
+                total_data: 1,
+                total_pages: 1,
+            },
         });
         expect(next).not.toHaveBeenCalled();
     });
 
     it("mengembalikan 200 beserta pesan 'Belum ada data' tanpa field data saat produk kosong", async () => {
         db.product.findMany.mockResolvedValue([]);
+        db.product.count.mockResolvedValue(0);
         const res = mockRes();
         const next = vi.fn();
 
@@ -73,6 +83,7 @@ describe("getProducts", () => {
     it("meneruskan error ke next saat pemanggilan database gagal", async () => {
         const error = new Error("db error");
         db.product.findMany.mockRejectedValue(error);
+        db.product.count.mockResolvedValue(0);
         const res = mockRes();
         const next = vi.fn();
 
