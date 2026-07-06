@@ -140,7 +140,13 @@ const deleteProduct = async (req, res) => {
 
     res.status(200).json({
         status: "success",
-        message: `Produk ${id} berhasil dihapus`
+        message: `Produk berhasil dihapus`,
+        data: {
+            id: findId.id,
+            name: findId.name,
+            price: findId.price,
+            description: findId.description
+        }
     })
 }
 

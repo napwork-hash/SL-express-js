@@ -12,10 +12,11 @@ const searchProduct = (search) => {
     if (!search) return {}
 
     return {
-        name: {
-            contains: search
-        }
-    }
+        OR: [
+            { name: { contains: search } },
+            { id: { equals: search } },
+        ],
+    };
 }
 
 export {
