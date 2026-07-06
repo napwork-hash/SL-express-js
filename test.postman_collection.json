@@ -90,6 +90,59 @@
           "response": []
         },
         {
+          "name": "Create Product",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const responseData = pm.response.json();\r",
+                  "const newProductId = responseData.data.id;\r",
+                  "pm.environment.set(\"product\", newProductId);",
+                  "",
+                  "pm.test(\"Status code is 201\", function () {",
+                  "    pm.response.to.have.status(201);",
+                  "});",
+                  "",
+                  "pm.test(\"Response has created product with valid fields\", function () {",
+                  "    const json = pm.response.json();",
+                  "    pm.expect(json.data).to.have.property(\"id\");",
+                  "    pm.expect(json.data.price).to.be.a(\"number\");",
+                  "});"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"name\": \"Product {{$randomProductName}}\",\r\n    \"price\": {{$randomPrice}},\r\n    \"description\": \"Description {{$randomProductAdjective}} {{$randomProductMaterial}} with {{$randomColor}} product\"\r\n}\r\n",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{url}}:{{port}}/api/product",
+              "host": [
+                "{{url}}"
+              ],
+              "port": "{{port}}",
+              "path": [
+                "api",
+                "product"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
           "name": "Get All Product - Pagination",
           "event": [
             {
@@ -360,59 +413,6 @@
                   "key": "search",
                   "value": "{{product}}"
                 }
-              ]
-            }
-          },
-          "response": []
-        },
-        {
-          "name": "Create Product",
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "exec": [
-                  "const responseData = pm.response.json();\r",
-                  "const newProductId = responseData.data.id;\r",
-                  "pm.environment.set(\"product\", newProductId);",
-                  "",
-                  "pm.test(\"Status code is 201\", function () {",
-                  "    pm.response.to.have.status(201);",
-                  "});",
-                  "",
-                  "pm.test(\"Response has created product with valid fields\", function () {",
-                  "    const json = pm.response.json();",
-                  "    pm.expect(json.data).to.have.property(\"id\");",
-                  "    pm.expect(json.data.price).to.be.a(\"number\");",
-                  "});"
-                ],
-                "type": "text/javascript",
-                "packages": {},
-                "requests": {}
-              }
-            }
-          ],
-          "request": {
-            "method": "POST",
-            "header": [],
-            "body": {
-              "mode": "raw",
-              "raw": "{\r\n    \"name\": \"Product {{$randomProductName}}\",\r\n    \"price\": {{$randomPrice}},\r\n    \"description\": \"Description {{$randomProductAdjective}} {{$randomProductMaterial}} with {{$randomColor}} product\"\r\n}\r\n",
-              "options": {
-                "raw": {
-                  "language": "json"
-                }
-              }
-            },
-            "url": {
-              "raw": "{{url}}:{{port}}/api/product",
-              "host": [
-                "{{url}}"
-              ],
-              "port": "{{port}}",
-              "path": [
-                "api",
-                "product"
               ]
             }
           },
