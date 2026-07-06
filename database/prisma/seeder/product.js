@@ -12,70 +12,39 @@ const adapter = new PrismaMariaDb({
 
 const prisma = new PrismaClient({ adapter });
 
+const categories = ["Kaos", "Kemeja", "Celana", "Jaket", "Sepatu", "Tas", "Topi", "Jam Tangan", "Kacamata", "Ikat Pinggang"];
+const adjectives = ["Polos", "Bermotif", "Klasik", "Modern", "Minimalis", "Casual", "Formal", "Vintage", "Sporty", "Elegan"];
+const materials = ["Katun", "Kulit", "Denim", "Linen", "Wol", "Polyester", "Kanvas", "Suede", "Nilon", "Rajut"];
+const colors = ["Hitam", "Putih", "Navy", "Cream", "Abu-abu", "Coklat", "Merah", "Biru", "Hijau", "Kuning"];
+
+function randomItem(arr) {
+  return arr[Math.floor(Math.random() * arr.length)];
+}
+
+function generateProduct() {
+  const category = randomItem(categories);
+  const adjective = randomItem(adjectives);
+  const material = randomItem(materials);
+  const color = randomItem(colors);
+
+  const name = `${category} ${adjective} ${material}`;
+  const price = Math.floor((Math.random() * (500000 - 20000) + 20000) / 1000) * 1000;
+  const description = `${adjective} ${category.toLowerCase()} berbahan ${material.toLowerCase()} warna ${color.toLowerCase()}, cocok untuk kebutuhan sehari-hari.`;
+
+  return { name, price, description };
+}
+
 async function main() {
-  console.log('Memulai seeding data produk...');
+  console.log("Memulai seeding data produk...");
 
   await prisma.product.deleteMany();
 
-  const products = [
-   {
-      name: 'Kaos Polos Hitam',
-      price: 50000,
-      description: 'Kaos polos katun combed 30s nyaman dipakai.',
-    },
-    {
-      name: 'Kemeja Flanel Kotak-Kotak',
-      price: 150000,
-      description: 'Kemeja flanel premium lengan panjang.',
-    },
-    {
-      name: 'Celana Chino Cream',
-      price: 125000,
-      description: 'Celana chino slim fit stretch.',
-    },
-    {
-      name: 'Jaket Hoodie Polos',
-      price: 175000,
-      description: 'Hoodie bahan fleece tebal hangat.',
-    },
-    {
-      name: 'Sepatu Sneakers Putih',
-      price: 250000,
-      description: 'Sneakers kasual bahan kulit sintetis.',
-    },
-    {
-      name: 'Kaos Polos Hitam',
-      price: 50000,
-      description: 'Kaos polos katun combed 30s nyaman dipakai.',
-    },
-    {
-      name: 'Kemeja Flanel Kotak-Kotak',
-      price: 150000,
-      description: 'Kemeja flanel premium lengan panjang.',
-    },
-    {
-      name: 'Celana Chino Cream',
-      price: 125000,
-      description: 'Celana chino slim fit stretch.',
-    },
-    {
-      name: 'Jaket Hoodie Polos',
-      price: 175000,
-      description: 'Hoodie bahan fleece tebal hangat.',
-    },
-    {
-      name: 'Sepatu Sneakers Putih',
-      price: 250000,
-      description: 'Sneakers kasual bahan kulit sintetis.',
-    }
-  ];
+  const TOTAL_PRODUCTS = 100;
+  const products = Array.from({ length: TOTAL_PRODUCTS }, generateProduct);
 
-  for (const product of products) {
-    const createdProduct = await prisma.product.create({ data: product });
-    console.log(`Berhasil membuat produk: ${createdProduct.name} (ID: ${createdProduct.id})`);
-  }
+  await prisma.product.createMany({ data: products });
 
-  console.log('Seeding selesai!');
+  console.log(`Seeding selesai! ${TOTAL_PRODUCTS} produk berhasil dibuat.`);
 }
 
 main()
