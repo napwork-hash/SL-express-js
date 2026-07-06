@@ -48,6 +48,9 @@ jobs:
       - name: Push Database Schema to Dummy DB
         run: npx prisma db push
 
+      - name: Seed Database with Mock Data
+        run: npx prisma db seed
+
       - name: Run Integration Tests
         run: npm test
 
