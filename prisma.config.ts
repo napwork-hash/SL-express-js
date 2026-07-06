@@ -7,8 +7,9 @@ export default defineConfig({
   schema: "./database/prisma/schema.prisma",
   migrations: {
     path: "./database/prisma/migrations",
+    seed: "node database/prisma/seeder/product.js"
   },
   datasource: {
-    url: process.env["DATABASE_URL"],
+    url: process.env["DATABASE_URL"] || "mysql://root:@localhost:3306/belajar-express",
   },
 });

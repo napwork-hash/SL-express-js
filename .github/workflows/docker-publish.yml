@@ -43,10 +43,10 @@ jobs:
         run: npm ci
 
       - name: Generate Prisma Client
-        run: npm run vercel-build
+        run: npx prisma generate --schema=./database/prisma/schema.prisma
 
       - name: Push Database Schema to Dummy DB
-        run: npx prisma db push
+        run: npx prisma db push --schema=./database/prisma/schema.prisma
 
       - name: Seed Database with Mock Data
         run: npx prisma db seed
